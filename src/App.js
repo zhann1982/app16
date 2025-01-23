@@ -1,63 +1,25 @@
-import axios from 'axios';
+import { fetchUserAction } from './actions/fetchUserAction';
+import { deleteUserAction } from './actions/deleteUserAction';
 import './App.css';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 
 function App() {
-  const [state, setState] = useState([])
-  const [name, setName] = useState("")
-  const [username, setUsername] = useState("")
-  const [email, setEmail] = useState("")
+  const { userList } = useSelector((state) => state.userReducer)
+  const dispatch = useDispatch()
 
-  const getUsers = () => {
-    axios.get('https://jsonplaceholder.typicode.com/users')
-    .then(response => {
-      setState(response.data)
-    })
-  }
-
-  const handleUserDelete = (id) => {
-    axios.delete(`https://jsonplaceholder.typicode.com/users/${id}`)
-  }
-
-  const handleUserCreate = (e) => {
-    e.preventDefault()
-    let body = {
-      name,
-      username,
-      email
-    }
-    axios.post('https://jsonplaceholder.typicode.com/users', body)
-    .then(response=>{
-      console.log(response)
-    })
-  } 
-
-  const handleUserEdit = (id) => {
-    const newName = prompt("Name: ")
-    const newUsername = prompt("Username: ")
-    const newEmail = prompt("email: ")
-    setName(newName)
-    setUsername(newUsername)
-    setEmail(newEmail)
-    let body = {
-      name,
-      username,
-      email
-    }
-    axios.put(`https://jsonplaceholder.typicode.com/users/${id}`, body)
-    .then(response=>{
-      console.log(response)
-    })
-  }
-
-  useEffect(()=>{
-    getUsers()
-  }, [])
+  const getUsers = () => dispatch(fetchUserAction())
   
+  const deleteUser = (id) => {
+    dispatch(deleteUserAction(id))
+    getUsers()
+  }
 
+  useEffect(()=>getUsers(), [])
+  
   return (
     <div className="App">
-        <form className='userFormCreate' onSubmit={handleUserCreate}>
+        {/* <form className='userFormCreate' onSubmit={handleUserCreate}>
           <h2>Create new user</h2>
           <input 
             onChange={(e) => setName(e.target.value)} 
@@ -78,21 +40,21 @@ function App() {
             value={email}
           />
           <button type='submit'>create</button>
-        </form>
-        {state.map(el =>  (
+        </form> */}
+        {userList.map((el) =>  (
             <div key={el.id} className='usersListItem'>
               <div className='id'>id: {el.id}</div>
               <div className='name'>{el.name}</div>
               <div className='username'>Username: {el.username}</div>
               <div className='email'>email: {el.email}</div>
               <button 
-                onClick={()=>handleUserDelete(el.id)}
+              onClick={()=>deleteUser(el.id)}
                 className='userDeleteButton'
               >
                 Delete
               </button>
               <button
-                onClick={()=>handleUserEdit(el.id)}
+                // onClick={()=>handleUserEdit(el.id)}
                 className='userEditButton'
               >
                 Edit
